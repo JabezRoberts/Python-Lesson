@@ -1,18 +1,34 @@
-from turtle import Turtle, Screen
+file = open("my_file.txt") # to open a file
+contents = file.read() # to read the contents of the file. saved to content as string
+print(contents)
+file.close()
 
-wartortle = Turtle() # Create a Turtle instance
-screen = Screen() # Create a Screen object or instance
+with open("my_file.txt") as file: # No need to remember to close the file with this method
+    contents = file.read() # to read the contents of the file
+    print(contents)
 
-def move_forward():
-    wartortle.forward(10) # Move the turtle forward by 10 units
 
-screen.listen() # Set the screen to listen for events
-# Use an event listener to connect our screen to our keyboard input
+# Writing to a file - deletes previous content
+with open("my_file.txt", mode="w") as file: # default is read mode but now we set it to write mode
+    file.write("New text.")
 
-screen.onkey(key="space", fun=move_forward) # When the Space key is pressed, call move_forward. When you pass a function as an argument, you don't include the parentheses.
-# Parentheses would call the function immediately, which is not what we want here. Instead, we want to pass the function itself as a reference to be called later when the event occurs.
 
-# A Higher Order Function is a function that takes another function as an argument or returns a function as its result. In this case, `screen.onkey` is a higher order function because it takes `move_forward` as an argument.
 
-screen.exitonclick() # Wait for a click on the screen to exit the program
-# This allows us to close the turtle graphics window when we're done.
+# Writing to a file - keeps previous content
+with open("my_file.txt", mode="a") as file: # a is append mode
+    file.write("\nNew text.")
+
+# If you try to open a file in write mode and the file doesn't exist then this will create the file for you
+with open("new_file.txt", mode="w") as file:
+    file.write("New file, new text bebeh!")
+
+
+# Using an absolute path to access a file on the desktop
+with open("/Users/Zeilhan Co/Desktop/my_file.txt") as file:
+    contents = file.read()
+    print(contents)
+
+# How to make the file be read relative to the current working folder
+with open("../../../my_file.txt", mode="r") as file:
+    contents = file.read()
+    print(contents)

@@ -1,123 +1,38 @@
-from turtle import Screen
-from mysnake import Snake
-import time
-from food import Food
-from scoreboard import Scoreboard
-
-
-screen =  Screen()
-screen.setup(width=600, height=600)
-screen.bgcolor("black")
-screen.title("My Snake Game")
-screen.tracer(0)
-
-
-snake = Snake()
-food = Food()
-scoreboard = Scoreboard()
-
-screen.listen()
-
-screen.onkey(snake.up, "Up") # tie buttons to these functions we create
-screen.onkey(snake.down, "Down")
-screen.onkey(snake.left, "Left")
-screen.onkey(snake.right, "Right")
-
-
-# Create a snake body ==> 3 squares (turtles) all ligned up behind each other. Each square is 20x20 pixels.
-# The first square is at (0, 0), the second at (-20, 0), and the third at (-40, 0). 
-
-# segment_1 = Turtle("square")
-# segment_1.color("white")
-
-# segment_2 = Turtle("square")
-# segment_2.color("white")
-# segment_2.goto(-20, 0)
-
-# segment_3 = Turtle("square")
-# segment_3.color("white")
-# segment_3.goto(-40, 0)
-# Written in a more efficient way using a loop
-
-
-# for position in starting_positions:
-#     segment = Turtle("square")
-#     segment.color("white")
-#     # segment.penup()  # Prevents the turtle from drawing lines
-#     segment.goto(position)
-
-# Now to move the snake, we can create a function that moves each segment forward by 20 pixels.
-#Create and organize the snake segments into a list for easy management.
-
-snake_segments = []
-segments = []
-
-
-game_is_on = True
-while game_is_on:
-    screen.update()
-    time.sleep(0.1) # Adds a 1 second sleep/pause/delay after all segments have movement
+#TODO: Create a letter using starting_letter.txt 
+#for each name in invited_names.txt
+#Replace the [name] placeholder with the actual name.
+#Save the letters in the folder "ReadyToSend".
     
-    snake.move()
-    
-    # detect collision with food using distance method from Turtle class
-    if snake.head.distance(food) < 15:
-        food.refresh()
-        snake.extend()
-        scoreboard.increase_score()
-    
-    # Detect collision with wall
-    if snake.head.xcor() > 280 or snake.head.xcor() < -280 or snake.head.ycor() > 280 or snake.head.ycor() < -280:
-        game_is_on = False
-        scoreboard.game_over()
-    
-    
-    # Detect collision with tail
-    # if head collides with any segment in tail trigger game over sequence
-    # for segment in snake.segments:
-    #     if segment == snake.head:
-    #         pass
-    #     elif snake.head.distance(segment) < 10:
-    #         game_is_on = False
-    #         scoreboard.game_over()
-    # rewrite the above in fewer lines
-    for segment in snake.segments[1:]:
-        if snake.head.distance(segment) < 10:
-            game_is_on = False
-            scoreboard.game_over()
-    
-# How to control the snake using the direction keys
+#Hint1: This method will help you: https://www.w3schools.com/python/ref_file_readlines.asp
+    #Hint2: This method will also help you: https://www.w3schools.com/python/ref_string_replace.asp
+        #Hint3: THis method will help you: https://www.w3schools.com/python/ref_string_strip.asp
+
+# The readlines() method returns a list containing each line in the file as a list item.
+# f = open("demofile.txt", "r")
+# print(f.readlines())
+
+# # Replace the word "bananas":
+
+# txt = "I like bananas"
+# x = txt.replace("bananas", "apples")
+# print(x)
 
 
-screen.exitonclick()# Uncomment the following lines to run the snake game with the initial setup.
+# # Remove spaces at the beginning and at the end of the string:
 
+# txt = "     banana     "
+# x = txt.strip()
+# print("of all fruits", x, "is my favorite")
 
+PLACEHOLDER = "[name]"
 
-# from turtle import Screen
-# from snake import Snake
-# import time
+with open("/Users/Zeilhan Co/Desktop/Study/100 Days of Code Python/Code/Day 24 - Intermediate - Files, Directories and Paths/Mail Merge Project Start/Input/Names/invited_names.txt", mode="r") as names_file:
+    names = names_file.readlines()
 
-# screen = Screen()
-# screen.setup(width=600, height=600)
-# screen.bgcolor("black")
-# screen.title("My Snake Game")
-# screen.tracer(0)
-
-# snake = Snake()
-# food = Food()
-
-# screen.listen()
-# screen.onkey(snake.up, "Up")
-# screen.onkey(snake.down, "Down")
-# screen.onkey(snake.left, "Left")
-# screen.onkey(snake.right, "Right")
-
-# game_is_on = True
-# while game_is_on:
-#     screen.update()
-#     time.sleep(0.1)
-
-#     snake.move()
-
-
-# screen.exitonclick()
+with open("/Users/Zeilhan Co/Desktop/Study/100 Days of Code Python/Code/Day 24 - Intermediate - Files, Directories and Paths/Mail Merge Project Start/Input/Letters/starting_letter.txt") as letter_file:
+    letter_contents = letter_file.read()
+    for name in names:
+        stripped_name = name.strip()
+        new_letter = letter_contents.replace(PLACEHOLDER, stripped_name)
+        with open(f"C:/Users/Zeilhan Co/Desktop/Study/100 Days of Code Python/Code/Day 24 - Intermediate - Files, Directories and Paths/Mail Merge Project Start/Output/ReadyToSend/letter_for_{stripped_name}.docx", mode="w") as completed_letter:
+            completed_letter.write(new_letter)
