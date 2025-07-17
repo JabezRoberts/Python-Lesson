@@ -1,123 +1,64 @@
-from turtle import Screen
-from mysnake import Snake
+from turtle import Turtle, Screen
+from paddle import Paddle
+from ball import Ball
 import time
-from food import Food
-from scoreboard import Scoreboard
 
 
-screen =  Screen()
-screen.setup(width=600, height=600)
+screen = Screen()
 screen.bgcolor("black")
-screen.title("My Snake Game")
-screen.tracer(0)
+screen.setup(width=800, height=600)
+screen.title("Pong The Arcade Game")
+screen.tracer(0) # removes the animation of the turtle starting at the center then moving back. But because of this function we need to manually update and refresh the 
+# screen everytime or the turtle/paddle will not show. use the while loop with game_is_on variable then screen.update() while game-is_on to update screen manually everytime
+from scoreboard import Scoreboard
+    
+l_paddle = Paddle((-350,0))
+r_paddle = Paddle((350,0))
 
-
-snake = Snake()
-food = Food()
+ball = Ball()
 scoreboard = Scoreboard()
 
+
 screen.listen()
+screen.onkey(r_paddle.move_up, "Up")
+screen.onkey(r_paddle.move_down, "Down") # Remember not to use the parenthesis when using a function as a parameter
 
-screen.onkey(snake.up, "Up") # tie buttons to these functions we create
-screen.onkey(snake.down, "Down")
-screen.onkey(snake.left, "Left")
-screen.onkey(snake.right, "Right")
-
-
-# Create a snake body ==> 3 squares (turtles) all ligned up behind each other. Each square is 20x20 pixels.
-# The first square is at (0, 0), the second at (-20, 0), and the third at (-40, 0). 
-
-# segment_1 = Turtle("square")
-# segment_1.color("white")
-
-# segment_2 = Turtle("square")
-# segment_2.color("white")
-# segment_2.goto(-20, 0)
-
-# segment_3 = Turtle("square")
-# segment_3.color("white")
-# segment_3.goto(-40, 0)
-# Written in a more efficient way using a loop
-
-
-# for position in starting_positions:
-#     segment = Turtle("square")
-#     segment.color("white")
-#     # segment.penup()  # Prevents the turtle from drawing lines
-#     segment.goto(position)
-
-# Now to move the snake, we can create a function that moves each segment forward by 20 pixels.
-#Create and organize the snake segments into a list for easy management.
-
-snake_segments = []
-segments = []
-
+screen.onkey(l_paddle.move_up, "w") # Move the left paddle up and down. The previous are for the right paddle
+screen.onkey(l_paddle.move_down, "s")
 
 game_is_on = True
 while game_is_on:
+    time.sleep(ball.move_speed) # Let the loop pause between iterations so the ball doesn't just run off screen. Reduce this on each bounce to speed up the ball
     screen.update()
-    time.sleep(0.1) # Adds a 1 second sleep/pause/delay after all segments have movement
+    ball.move()
     
-    snake.move()
+    # Detect bounce when ball hits the top or bottom of the screen left or right of the screen
+    if ball.ycor() > 280 or ball.ycor() < -280: # Screen height is 600px
+        ball.bounce_y()
     
-    # detect collision with food using distance method from Turtle class
-    if snake.head.distance(food) < 15:
-        food.refresh()
-        snake.extend()
-        scoreboard.increase_score()
-    
-    # Detect collision with wall
-    if snake.head.xcor() > 280 or snake.head.xcor() < -280 or snake.head.ycor() > 280 or snake.head.ycor() < -280:
-        game_is_on = False
-        scoreboard.game_over()
+    # Detect collision with paddle
+    if ball.distance(r_paddle) < 50 and ball.xcor() > 320 or ball.distance(l_paddle) < 50 and ball.xcor() < -320:
+        ball.bounce_x()
     
     
-    # Detect collision with tail
-    # if head collides with any segment in tail trigger game over sequence
-    # for segment in snake.segments:
-    #     if segment == snake.head:
-    #         pass
-    #     elif snake.head.distance(segment) < 10:
-    #         game_is_on = False
-    #         scoreboard.game_over()
-    # rewrite the above in fewer lines
-    for segment in snake.segments[1:]:
-        if snake.head.distance(segment) < 10:
-            game_is_on = False
-            scoreboard.game_over()
+    # Detect if ball goes out of bounds at the edge of the screen. If yes, reset the ball's position to the center of the screen. The ball should then start moving
+    # towards the other player
     
-# How to control the snake using the direction keys
+    # Detect when right paddle misses - The screen is 800px and the paddle is 350px so if the paddle goes beyond 380 then it's definitely missed the ball.
+    # The paddle goes from 340 to 360
+    if ball.xcor() > 380:
+        ball.reset_position()
+        scoreboard.l_point()
+    
+    # Detect when the left paddle misses
+    if ball.xcor() < -380:
+        ball.reset_position()
+        scoreboard.r_point()
 
 
-screen.exitonclick()# Uncomment the following lines to run the snake game with the initial setup.
 
 
 
-# from turtle import Screen
-# from snake import Snake
-# import time
-
-# screen = Screen()
-# screen.setup(width=600, height=600)
-# screen.bgcolor("black")
-# screen.title("My Snake Game")
-# screen.tracer(0)
-
-# snake = Snake()
-# food = Food()
-
-# screen.listen()
-# screen.onkey(snake.up, "Up")
-# screen.onkey(snake.down, "Down")
-# screen.onkey(snake.left, "Left")
-# screen.onkey(snake.right, "Right")
-
-# game_is_on = True
-# while game_is_on:
-#     screen.update()
-#     time.sleep(0.1)
-
-#     snake.move()
 
 
-# screen.exitonclick()
+screen.exitonclick()
