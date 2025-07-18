@@ -1,123 +1,123 @@
-from turtle import Screen
-from mysnake import Snake
+from tkinter import *
 import time
-from food import Food
-from scoreboard import Scoreboard
+import math
+# ---------------------------- CONSTANTS ------------------------------- #
+PINK = "#e2979c"
+RED = "#e7305b"
+GREEN = "#9bdeac"
+YELLOW = "#f7f5dd"
+FONT_NAME = "Courier"
+WORK_MIN = 25
+SHORT_BREAK_MIN = 5
+LONG_BREAK_MIN = 20
+reps = 0
+timer = None
+# ---------------------------- TIMER RESET ------------------------------- # 
+
+def reset_pomodoro():
+    window.after_cancel(timer) # Stops window.after from running or in this case stops our timer
+    canvas.itemconfig(timer_text, text="00:00")
+    timer_label.config(text="Timer")
+    check_marks.config(text="")
+    global reps
+    reps = 0
 
 
-screen =  Screen()
-screen.setup(width=600, height=600)
-screen.bgcolor("black")
-screen.title("My Snake Game")
-screen.tracer(0)
 
+# ---------------------------- TIMER MECHANISM ------------------------------- # 
 
-snake = Snake()
-food = Food()
-scoreboard = Scoreboard()
-
-screen.listen()
-
-screen.onkey(snake.up, "Up") # tie buttons to these functions we create
-screen.onkey(snake.down, "Down")
-screen.onkey(snake.left, "Left")
-screen.onkey(snake.right, "Right")
-
-
-# Create a snake body ==> 3 squares (turtles) all ligned up behind each other. Each square is 20x20 pixels.
-# The first square is at (0, 0), the second at (-20, 0), and the third at (-40, 0). 
-
-# segment_1 = Turtle("square")
-# segment_1.color("white")
-
-# segment_2 = Turtle("square")
-# segment_2.color("white")
-# segment_2.goto(-20, 0)
-
-# segment_3 = Turtle("square")
-# segment_3.color("white")
-# segment_3.goto(-40, 0)
-# Written in a more efficient way using a loop
-
-
-# for position in starting_positions:
-#     segment = Turtle("square")
-#     segment.color("white")
-#     # segment.penup()  # Prevents the turtle from drawing lines
-#     segment.goto(position)
-
-# Now to move the snake, we can create a function that moves each segment forward by 20 pixels.
-#Create and organize the snake segments into a list for easy management.
-
-snake_segments = []
-segments = []
-
-
-game_is_on = True
-while game_is_on:
-    screen.update()
-    time.sleep(0.1) # Adds a 1 second sleep/pause/delay after all segments have movement
+def start_pomodoro():
+    global reps
+    reps += 1
+    # print(count)
+    work_sec = WORK_MIN * 60
+    long_break_sec = LONG_BREAK_MIN * 60
+    short_break_sec = SHORT_BREAK_MIN * 60
     
-    snake.move()
+    if reps % 8 == 0:
+        countdown(long_break_sec)
+        timer_label.config(text="Break Time", fg=RED)
+    elif reps % 2 == 0:
+        countdown(short_break_sec)
+        timer_label.config(text="Break Time!", fg=PINK)
+    else:
+        countdown(work_sec)
+        timer_label.config(text="Work Time!", fg=GREEN)
+
+        
+# ---------------------------- COUNTDOWN MECHANISM ------------------------------- # 
+
+
+def countdown(count):
+    count_min = math.floor(count / 60)
     
-    # detect collision with food using distance method from Turtle class
-    if snake.head.distance(food) < 15:
-        food.refresh()
-        snake.extend()
-        scoreboard.increase_score()
+    # Use Dynamic Typing to change the text from 5:0 to 5:00
+    # Dynamic Typing is when you can change a variable's data type by changing the type of data it holds
+    # Eg. a = 5 means a is an int but if you now write a = "hello" it means a is now a string. Congratulations! You just dynamic typed
     
-    # Detect collision with wall
-    if snake.head.xcor() > 280 or snake.head.xcor() < -280 or snake.head.ycor() > 280 or snake.head.ycor() < -280:
-        game_is_on = False
-        scoreboard.game_over()
+    count_seconds = count % 60
+    if count_seconds < 10 :
+        count_seconds == f"0{count_seconds}" # Dynamic typing
     
+    # change the timer on the window
+    canvas.itemconfig(timer_text, text=f"{count_min}:{count_seconds}")
+    if count > 0:
+        global timer
+        timer = window.after(1000, countdown, count - 1)
+    else:
+        start_pomodoro()
+        mark = ""
+        for _ in range(math.floor(reps/2)): #math.floor to avoid float division
+            mark += "✔"
+        check_marks.config(text=mark)
     
-    # Detect collision with tail
-    # if head collides with any segment in tail trigger game over sequence
-    # for segment in snake.segments:
-    #     if segment == snake.head:
-    #         pass
-    #     elif snake.head.distance(segment) < 10:
-    #         game_is_on = False
-    #         scoreboard.game_over()
-    # rewrite the above in fewer lines
-    for segment in snake.segments[1:]:
-        if snake.head.distance(segment) < 10:
-            game_is_on = False
-            scoreboard.game_over()
-    
-# How to control the snake using the direction keys
-
-
-screen.exitonclick()# Uncomment the following lines to run the snake game with the initial setup.
 
 
 
-# from turtle import Screen
-# from snake import Snake
-# import time
+# ---------------------------- UI SETUP ------------------------------- #
+window = Tk()
+window.title("Pomodoro Clock")
+window.config(padx=100, pady=50, bg=YELLOW)
 
-# screen = Screen()
-# screen.setup(width=600, height=600)
-# screen.bgcolor("black")
-# screen.title("My Snake Game")
-# screen.tracer(0)
+# Put an image in the program --> tomato as the background
+# Tkinter Canvas Widget
+canvas = Canvas(width=210, height=240, bg=YELLOW, highlightthickness=0)
+tomato_img = PhotoImage(file="C:/Users/Zeilhan Co/Desktop/Study/100 Days of Code Python/Code/Day 28 - Pomodoro GUI and Dynamic Typing/Pomodoro Start/tomato.png")
+canvas.create_image(102, 110, image=tomato_img) # To center our image set the image at half the width and height, requires a photoimage
+timer_text = canvas.create_text(102,130, text="00:00", fill="white", font=(FONT_NAME, 42, "bold"))
+canvas.grid(column=1, row=1)
 
-# snake = Snake()
-# food = Food()
+timer_label = Label(text="Timer", fg=GREEN, font=(FONT_NAME, 50), highlightthickness=0, bg=YELLOW)
+timer_label.grid(column=1, row=0)
 
-# screen.listen()
-# screen.onkey(snake.up, "Up")
-# screen.onkey(snake.down, "Down")
-# screen.onkey(snake.left, "Left")
-# screen.onkey(snake.right, "Right")
+start_button = Button(text="Start", command=start_pomodoro)
+start_button.grid(column=0, row=2)
 
-# game_is_on = True
-# while game_is_on:
-#     screen.update()
-#     time.sleep(0.1)
-
-#     snake.move()
+reset_button = Button(text="Reset", command=reset_pomodoro)
+reset_button.grid(column=2, row=2)
 
 
-# screen.exitonclick()
+# #Checkbutton
+# def checkbutton_used():
+#     #Prints 1 if On button checked, otherwise 0.
+#     print(checked_state.get())
+# #variable to hold on to checked state, 0 is off, 1 is on.
+# checked_state = IntVar()
+# checkbutton = Checkbutton(text="✔", variable=checked_state, command=checkbutton_used)
+# checked_state.get()
+# checkbutton.grid(column=1, row=2)
+
+# OR
+check_marks = Label(fg=GREEN, bg=YELLOW)
+check_marks.grid(column=1, row=2)
+
+
+
+
+
+
+
+
+
+
+window.mainloop()
