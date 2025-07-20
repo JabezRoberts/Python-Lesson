@@ -1,123 +1,127 @@
-from turtle import Screen
-from mysnake import Snake
-import time
-from food import Food
-from scoreboard import Scoreboard
+from tkinter import * # import all classes and constants from tkinter
+from tkinter import messagebox # message box is not a class but a module of code
+from random import shuffle, choice, randint
+import pyperclip
+
+# ---------------------------- PASSWORD GENERATOR ------------------------------- #
+def generate_password():
+    #Password Generator Project
+    letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
+    numbers = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
+    symbols = ['!', '#', '$', '%', '&', '(', ')', '*', '+']
 
 
-screen =  Screen()
-screen.setup(width=600, height=600)
-screen.bgcolor("black")
-screen.title("My Snake Game")
-screen.tracer(0)
+    # for char in range(nr_letters):
+    #   password_list.append(random.choice(letters))
+    password_letters = [choice(letters) for _ in range(randint(10, 12))]
 
 
-snake = Snake()
-food = Food()
-scoreboard = Scoreboard()
-
-screen.listen()
-
-screen.onkey(snake.up, "Up") # tie buttons to these functions we create
-screen.onkey(snake.down, "Down")
-screen.onkey(snake.left, "Left")
-screen.onkey(snake.right, "Right")
+    # for char in range(nr_symbols):
+    #   password_list += random.choice(symbols)
+    password_symbols = [choice(symbols) for _ in range(randint(5, 7))]
 
 
-# Create a snake body ==> 3 squares (turtles) all ligned up behind each other. Each square is 20x20 pixels.
-# The first square is at (0, 0), the second at (-20, 0), and the third at (-40, 0). 
+    # for char in range(nr_numbers):
+    #   password_list += random.choice(numbers)
+    password_numbers = [choice(numbers) for _ in range(randint(5, 7))]
 
-# segment_1 = Turtle("square")
-# segment_1.color("white")
+    password_list = password_letters + password_symbols + password_numbers
 
-# segment_2 = Turtle("square")
-# segment_2.color("white")
-# segment_2.goto(-20, 0)
+    shuffle(password_list)
 
-# segment_3 = Turtle("square")
-# segment_3.color("white")
-# segment_3.goto(-40, 0)
-# Written in a more efficient way using a loop
+    # password = ""
+    # for char in password_list:
+    #   password += char
+    password = "".join(password_list)
 
-
-# for position in starting_positions:
-#     segment = Turtle("square")
-#     segment.color("white")
-#     # segment.penup()  # Prevents the turtle from drawing lines
-#     segment.goto(position)
-
-# Now to move the snake, we can create a function that moves each segment forward by 20 pixels.
-#Create and organize the snake segments into a list for easy management.
-
-snake_segments = []
-segments = []
-
-
-game_is_on = True
-while game_is_on:
-    screen.update()
-    time.sleep(0.1) # Adds a 1 second sleep/pause/delay after all segments have movement
+    # print(f"Your password is: {password}")
+    password_input.insert(0, password)
     
-    snake.move()
+    # How to copy a string to the clipboard automatically. So after you click generate password the password will automatically get saved to the clipboard so you can paste it in the website --> pyperclip
+    pyperclip.copy(password)
+
+# ---------------------------- SAVE PASSWORD ------------------------------- #
+# Save the website, email, and password entered to a file data.txt
+def add_password():
+    website_entries = website_input.get()
+    email_entries = email_input.get()
+    password_entries = password_input.get()
     
-    # detect collision with food using distance method from Turtle class
-    if snake.head.distance(food) < 15:
-        food.refresh()
-        snake.extend()
-        scoreboard.increase_score()
+    # Have a dialog box popup that prevents the user from proceeding when either the website name, email, or password field is empty
     
-    # Detect collision with wall
-    if snake.head.xcor() > 280 or snake.head.xcor() < -280 or snake.head.ycor() > 280 or snake.head.ycor() < -280:
-        game_is_on = False
-        scoreboard.game_over()
-    
-    
-    # Detect collision with tail
-    # if head collides with any segment in tail trigger game over sequence
-    # for segment in snake.segments:
-    #     if segment == snake.head:
-    #         pass
-    #     elif snake.head.distance(segment) < 10:
-    #         game_is_on = False
-    #         scoreboard.game_over()
-    # rewrite the above in fewer lines
-    for segment in snake.segments[1:]:
-        if snake.head.distance(segment) < 10:
-            game_is_on = False
-            scoreboard.game_over()
-    
-# How to control the snake using the direction keys
+    if len(website_entries) == 0 or len(email_entries) == 0 or len(password_entries) == 0:
+        messagebox.showinfo(title="You have an error!", message="Your website, username/email, or password field is empty. Please enter a username/email, website, or password and try again.")
+    else:
+        
+        # Create a message back to have users check their input and confirm the accuracy before saving it. If they select ok then we proceed but if they cancel nothing happens
+        
+        is_ok = messagebox.askokcancel(title=website_entries, message=f"These are the details entered: \n Email: {email_entries} \nPassword: {password_entries} \nWebsite: {website_entries}\n\n Do you want to proceed with these entries?")
+        
+        if is_ok:
+            with open("passwords.txt", "a") as passwords_file: # if the file doesn't exist it will create it --> append mode
+                passwords_file.write(f"{website_entries} | {email_entries} | {password_entries}\n")
+                # now to delete our entered data after we have written to the file
+                website_entries.delete(0, END)
+                email_entries.delete(0, END)
+                password_entries.delete(0, END)
 
 
-screen.exitonclick()# Uncomment the following lines to run the snake game with the initial setup.
+# ---------------------------- UI SETUP ------------------------------- #
+window = Tk()
+window.title("Password Manager")
+window.config(padx=50, pady=50)
+
+# Put an image in the program --> MyPass lock as the background
+# Tkinter Canvas Widget
+canvas = Canvas(width=200, height=200)
+mypass_img = PhotoImage(file="C:/Users/Zeilhan Co/Desktop/Study/100 Days of Code Python/Code/Day 29 - Password Manager GUI App/Start/logo.png")
+canvas.create_image(100,100, image=mypass_img)
+canvas.grid(column=1, row=0)
+
+
+# Add the website entry field
+website_input = Entry(width=35)
+website_input.grid(column=1, row=1, columnspan=2)
+
+# When the program starts the cursor will already be in the website entry window by default
+website_input.focus()
+
+# Add the website entry label
+website_label = Label(text="Website:")
+website_label.grid(column=0,row=1)
+
+# Add the Email/Username entry field
+email_input = Entry(width=35)
+email_input.grid(column=1, row=2, columnspan=2)
+
+# Add a starting or prepopulated value to the email entry field
+email_input.insert(0, "info@jabezroberts.com")
+# use email_input.insert(END) if you want to insert this text after the text you entered in the field
+
+
+# Add the website entry label
+email_label = Label(text="Email/Username:")
+email_label.grid(column=0,row=2)
+
+# Add the Password Entry field then add the Generate Password button
+password_input = Entry(width=21)
+password_input.grid(column=1, row=3)
+
+# Add the website entry label
+password_label = Label(text="Password:")
+password_label.grid(column=0,row=3)
+
+# Generate Password Button
+generate_password_button = Button(text="Generate Password", command=generate_password)
+generate_password_button.grid(column=2, row=3)
+
+
+# Add the 'Add' button
+add_password_button = Button(text="Add Password", width=36, command=add_password)
+add_password_button.grid(column=1, row=4, columnspan=2)
 
 
 
-# from turtle import Screen
-# from snake import Snake
-# import time
-
-# screen = Screen()
-# screen.setup(width=600, height=600)
-# screen.bgcolor("black")
-# screen.title("My Snake Game")
-# screen.tracer(0)
-
-# snake = Snake()
-# food = Food()
-
-# screen.listen()
-# screen.onkey(snake.up, "Up")
-# screen.onkey(snake.down, "Down")
-# screen.onkey(snake.left, "Left")
-# screen.onkey(snake.right, "Right")
-
-# game_is_on = True
-# while game_is_on:
-#     screen.update()
-#     time.sleep(0.1)
-
-#     snake.move()
 
 
-# screen.exitonclick()
+window.mainloop()
